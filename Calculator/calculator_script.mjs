@@ -4,6 +4,8 @@ const calculator = {
     result: "",
     operand: "",
     history: "",
+    newOperand: "",
+    newOperandAvailable: false,
     resultReady: false,
     operandInserted: true,
     decimalInserted: false,
@@ -17,9 +19,9 @@ function showCalcDisplay(){
     $("#display").html(calculator.displayValue);
     //Resizing the font for large inputs
     if(calculator.displayValue.length>9){
-        $("#display").css("font-size", "175%");
+        $("#display").css("font-size", "175%")
     }else{
-        $("#display").css("font-size", "350%");
+        $("#display").css("font-size", "350%")
     }
     //Handling extra-large inputs
     if(calculator.displayValue.length>18){
@@ -36,8 +38,10 @@ function showHistory(){
 //Handling digit input
 function digitInput(digit){
     if(calculator.enabled){
+        calculator.newOperand = "";
+        calculator.newOperandAvailable = false;
         //Avoiding consecutive zeros, if not preceded by a non-zero digit or decimal dot
-        if(calculator.operand == "0"){
+        if(calculator.operand == "0" ){
             calculator.operand = digit;
             calculator.displayValue = calculator.displayValue.slice(0,-1) + digit;
         }else{
@@ -72,8 +76,8 @@ function clearInput(){
         calculator.resultReady = false;
         calculator.operandInserted = true;
         calculator.decimalInserted = false;
-        calculator.operatorInserted = false;
-        calculator.negPosValueHandler =  false;
+        calculator.operatorInserted = false; 
+        calculator.negPosValueHandler = false;
         calculator.enabled = true;
     }
 }
@@ -94,27 +98,33 @@ function backspaceInput(){
 function operatorInput(operator){
     if(calculator.enabled){
         //Avoiding consecutive operators
-        if(!calculator.operatorInserted){
-            calculator.displayValue += operator;
-            calculator.operand = "";
-            calculator.operatorInserted = true;
-            calculator.decimalInserted = false;
-            calculator.operandInserted = false;
+        if(calculator.newOperandAvailable){
+            calculator.displayValue = calculator.newOperand+operator;
+            calculator.newOperand = "";
+            calculator.newOperand = false;
         }else{
-            calculator.displayValue = calculator.displayValue.slice(0,-1);
-            calculator.displayValue += operator;
-            calculator.decimalInserted = false;
-            calculator.operandInserted = false;
-        };
-        if(calculator.operandInserted){
-            if(!isNaN(calculator.displayValue.charAt(calculator.displayValue.length-1))){
-                backspaceInput();
+            if(!calculator.operatorInserted){
+                calculator.displayValue += operator;
+                calculator.operand = "";
+                calculator.operatorInserted = true;
+                calculator.decimalInserted = false;
+                calculator.operandInserted = false
+            }else{
+                calculator.displayValue = calculator.displayValue.slice(0,-1);
+                calculator.displayValue += operator;
+                calculator.decimalInserted = false;
+                calculator.operandInserted = false;
+            };
+            if(calculator.operandInserted){
+                if(!isNaN(calculator.displayValue.charAt(calculator.displayValue.length-1))){
+                    backspaceInput();
+                }
             }
-        }
-        //Allowing first value introduced to be negative
-        if(!calculator.negPosValueHandler){
-            if(calculator.displayValue == "/" | calculator.displayValue == "*"){
-                backspaceInput();
+            //Allowing first value introduced to be negative
+            if(!calculator.negPosValueHandler){
+                if(calculator.displayValue == "/" | calculator.displayValue == "*"){
+                    backspaceInput();
+                }
             }
         }
     }
@@ -169,14 +179,18 @@ $(".button").on("click",function(e){
         showCalcDisplay();
         showHistory();
         //Transforming the result into a new operand
-        calculator.displayValue = calculator.result;
-        calculator.operand = "";
-        calculator.operandInserted = true;
+        calculator.displayValue = "";
+        calculator.newOperand = calculator.result;
+        calculator.newOperandAvailable = true;
         calculator.result = "";
+        calculator.operand = "";
         calculator.history = "";
-        calculator.operatorInserted = false;
+        calculator.resultReady = false;
+        calculator.operandInserted = true;
         calculator.decimalInserted = false;
-        calculator.negPosValueHandler = false;  
+        calculator.operatorInserted = false; 
+        calculator.negPosValueHandler = false;
+        calculator.enabled = true;
     }     
 });
 
@@ -190,15 +204,15 @@ $(document).keypress(function(e){
     }
 });
 
-$(document).keypress(function(e){
-    if(e.which == 46){
+$(document).keypress(function(e) {
+    if(e.which == 46) {
         decimalInput(".");
         showCalcDisplay();
     }
 });
 
-$(document).keypress(function(e){
-    if(e.which == 42){
+$(document).keypress(function(e) {
+    if(e.which == 42) {
         operatorInput("*");
         showCalcDisplay();
     }else if(e.which == 43){
@@ -213,33 +227,37 @@ $(document).keypress(function(e){
     }
 });
 
-$(document).keydown(function(e){
-    if(e.which == 27){
+$(document).keydown(function(e) {
+    if(e.which == 27) {
         clearInput();
         showCalcDisplay();
     }
 });
 
-$(document).keydown(function(e){
+$(document).keydown(function(e) {
     if(e.which == 8) {
         backspaceInput();
         showCalcDisplay();
     }
 });
 
-$(document).keyup(function(e){
-    if(e.which == 13){
+$(document).keyup(function(e) {
+    if(e.which == 13) {
         equals();
         showCalcDisplay();
         showHistory();
-        calculator.displayValue = calculator.result
-        calculator.operand = "";
-        calculator.operandInserted = true;
+        calculator.displayValue = "";
+        calculator.newOperand = calculator.result;
+        calculator.newOperandAvailable = true;
         calculator.result = "";
+        calculator.operand = "";
         calculator.history = "";
-        calculator.operatorInserted = false;
+        calculator.resultReady = false;
+        calculator.operandInserted = true;
         calculator.decimalInserted = false;
-        calculator.negPosValueHandler = false;       
+        calculator.operatorInserted = false; 
+        calculator.negPosValueHandler = false;
+        calculator.enabled = true;
     }
 });
  
